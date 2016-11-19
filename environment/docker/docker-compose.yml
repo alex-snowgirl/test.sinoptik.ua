@@ -1,0 +1,66 @@
+version: '2'
+services:
+  nginx:
+    build:
+      context: ./../../environment/docker/
+      dockerfile: NginxDockerfile
+    image: nginx-improve-me
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./../../:/var/www/
+      - ./../../environment/nginx/fastcgi_params:/etc/nginx/fastcgi_params
+      - ./../../environment/nginx/koi-utf:/etc/nginx/koi-utf
+      - ./../../environment/nginx/koi-win:/etc/nginx/koi-win
+      - ./../../environment/nginx/mime.types:/etc/nginx/mime.types
+      - ./../../environment/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./../../environment/nginx/scgi_params:/etc/nginx/scgi_params
+      - ./../../environment/nginx/uwsgi_params:/etc/nginx/uwsgi_params
+      - ./../../environment/nginx/win-utf:/etc/nginx/win-utf
+
+      - ./../../environment/nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf
+
+      - ./../../environment/nginx/conf.d/type.conf:/etc/nginx/conf.d/type.conf
+      - ./../../environment/nginx/conf.d/log.conf:/etc/nginx/conf.d/log.conf
+      - ./../../environment/nginx/conf.d/default-http-config.conf:/etc/nginx/conf.d/default-http-config.conf
+      - ./../../environment/nginx/conf.d/upstream.conf:/etc/nginx/conf.d/upstream.conf
+
+      - ./../../nginx/log:/var/www/log/nginx
+
+      #- ./../letsencrypt/ssl:/etc/letsencrypt
+      #- ./../letsencrypt/nginx/letsencript-location.conf:/etc/nginx/letsenctypt.conf
+      #- ./../letsencrypt/webroot:/var/www/letsencrypt
+
+    links:
+      - fpm
+  fpm:
+    build:
+      context: ./../../environment/docker/
+      dockerfile: PHP7fpmDevDockerfile
+    image: php7-fpm-improve-me
+    volumes:
+      - ./../../:/var/www/
+      - ./../../environment/php-fpm/docker.conf:/usr/local/etc/php-fpm.d/docker.conf
+      - ./../../environment/php-fpm/www.conf:/usr/local/etc/php-fpm.d/www.conf
+      - ./../../environment/php-fpm/zz-docker.conf:/usr/local/etc/php-fpm.d/zz-docker.conf
+    expose:
+      - 9000
+    links:
+      - mysql
+  mysql:
+    build:
+      context: ./../../environment/docker/
+      dockerfile: MySQLDockerfile
+    image: mysql-improve-me
+    volumes:
+      - ./../../:/var/www/
+      - ./../../mysql/data:/var/lib/mysql
+      - ./../../environment/mysql/my.cnf:/etc/mysql/my.cnf
+    environment:
+      MYSQL_ROOT_PASSWORD: improve
+      MYSQL_DATABASE: me
+    #expose: #prod
+    #  - "3306"
+    ports: #dev
+      - "3306"
