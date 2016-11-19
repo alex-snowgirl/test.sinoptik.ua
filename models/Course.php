@@ -93,4 +93,18 @@ class Course extends \yii\db\ActiveRecord
     {
         return date_create_from_format(static::DATE_FORMAT, $date);
     }
+
+    public function getNiceAttributes()
+    {
+        return [
+            'bank_id' => $this->bank_id,
+            'bank' => $this->bank->name,
+            'uri' => 'site/course?id=' . $this->id,
+            'currency_id' => $this->currency_id,
+            'currency' => $this->currency->name,
+            'sell' => $this->sell,
+            'buy' => $this->buy,
+            'date' => $this->pub_date
+        ];
+    }
 }
